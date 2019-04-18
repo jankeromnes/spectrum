@@ -1,0 +1,32 @@
+image:
+  file: .gitpod.dockerfile
+ports:
+- port: 3000
+  onOpen: open-browser
+- port: 3001
+  onOpen: ignore
+- port: 6379
+  onOpen: ignore
+- port: 8080
+  onOpen: ignore
+- port: 28015
+  onOpen: ignore
+- port: 29015
+  onOpen: ignore
+tasks:
+- name: RethinkDB
+  command: rethinkdb
+- name: Redis
+  command: redis-server
+- name: dev:api
+  init: sleep 2 && while [ -f /tmp/.npm-lock ] ; do sleep 2 ; done
+  command: yarn run dev:api
+- init: >
+    touch /tmp/.npm-lock &&
+    node shared/install-dependencies.js &&
+    rm /tmp/.npm-lock
+  command: >
+    export NODE_ENV=production &&
+    export REACT_EDITOR=code &&
+    yarn run db:reset &&
+    yarn run dev:web
